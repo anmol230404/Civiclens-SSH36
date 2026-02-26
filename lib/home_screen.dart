@@ -6,11 +6,11 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:typed_data';
-import 'dart:math' show cos, sqrt, asin; // 👈 Added for distance math
+import 'dart:math' show cos, sqrt, asin;
 
 import 'auth_service.dart'; 
 import 'map_screen.dart';
-import 'reports_screen.dart';
+import 'reports_screen.dart'; 
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,13 +20,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // 🔑 API KEY
-  final String apiKey = "AIzaSyAm9vkdIPz5XsXNKpZfQssnXf9-Hc88mkY"; 
+  // 🔑 PASTE YOUR REAL GEMINI API KEY HERE
+  final String apiKey = "AIzaSyC5MzKGb-lQzwXQyRQ3EqhMZnFzAl2UPf4"; 
 
   bool _isAnalyzing = false;
-  Position? _currentPosition; // 📍 To store exact GPS for math
+  Position? _currentPosition; 
 
-  // 👇 MATH FUNCTION: Calculates distance between two points in Meters
   double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
     var p = 0.017453292519943295;
     var c = cos;
@@ -56,7 +55,6 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() => _isAnalyzing = true);
 
     try {
-      // 📍 GET PRECISE LOCATION
       String displayLocation = "Unknown Location";
       try {
         _currentPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
@@ -65,16 +63,16 @@ class _HomeScreenState extends State<HomeScreen> {
         displayLocation = "Location Unavailable";
       }
 
-      // 🤖 GEMINI AI SCAN
       final Uint8List imageBytes = await image.readAsBytes();
+      
       final model = GenerativeModel(model: 'gemini-2.5-flash', apiKey: apiKey);
 
       final content = Content.multi([
         TextPart("Analyze this image for civic hazards. Format strictly: 'ISSUE: [Title] | SEVERITY: [High/Medium/Low] | DEPT: [Type]'. If safe, reply 'SAFE'."),
-        DataPart('image/jpeg', imageBytes),
+        DataPart(image.mimeType ?? 'image/jpeg', imageBytes), 
       ]);
 
-      final response = await model.generateContent([content]).timeout(const Duration(seconds: 15));
+      final response = await model.generateContent([content]);
       final String result = response.text ?? "SAFE";
       
       if (!result.contains("SAFE")) {
@@ -82,7 +80,6 @@ class _HomeScreenState extends State<HomeScreen> {
          String severity = "Medium";
          String dept = "General";
 
-         // Parse Response
          if (result.contains("ISSUE:")) {
              var parts = result.split("|");
              if (parts.isNotEmpty) description = parts[0].replaceAll("ISSUE:", "").trim();
@@ -90,7 +87,6 @@ class _HomeScreenState extends State<HomeScreen> {
              if (parts.length > 2) dept = parts[2].replaceAll("DEPT:", "").trim();
          }
 
-         // 🔥 SMART SUBMIT: Checks for duplicates first!
          await _smartSubmitReport(description, severity, dept, displayLocation);
 
       } else {
@@ -98,21 +94,23 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
     } catch (e) {
-      if (mounted) _showResult("Error: Check Internet", Colors.red);
+      print("GEMINI ERROR EXACT: $e");
+      if (mounted) {
+        String errorMsg = e.toString().split('\n')[0]; 
+        _showResult("AI Error: $errorMsg", Colors.red);
+      }
     } finally {
       if (mounted) setState(() => _isAnalyzing = false);
     }
   }
 
-  // 👇 THE SMART LOGIC FUNCTION
   Future<void> _smartSubmitReport(String desc, String severity, String dept, String dispLoc) async {
     if (_currentPosition == null) {
-      await _addToFirestore(desc, severity, dept, dispLoc, 1); // No GPS? Just add.
+      await _addToFirestore(desc, severity, dept, dispLoc, 1); 
       if (mounted) _showSuccessDialog("Report Submitted", "Hazard reported successfully.", severity, dispLoc);
       return;
     }
 
-    // 1. Get all Pending reports
     final snapshot = await FirebaseFirestore.instance
         .collection('reports')
         .where('status', isEqualTo: 'Pending')
@@ -121,7 +119,6 @@ class _HomeScreenState extends State<HomeScreen> {
     String? existingDocId;
     int currentVotes = 0;
 
-    // 2. Check if any report is closer than 50 METERS
     for (var doc in snapshot.docs) {
       final data = doc.data();
       if (data['latitude'] != null && data['longitude'] != null) {
@@ -132,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
           data['longitude']
         );
 
-        if (dist < 50) { // MATCH FOUND!
+        if (dist < 50) { 
           existingDocId = doc.id;
           currentVotes = data['votes'] ?? 1;
           break;
@@ -141,16 +138,14 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     if (existingDocId != null) {
-      // 🔄 MERGE: Update the existing report
       await FirebaseFirestore.instance.collection('reports').doc(existingDocId).update({
-        'description': desc, // Overwrite with new (likely better) description
+        'description': desc, 
         'severity': severity, 
-        'votes': currentVotes + 1, // 🚀 ESCALATE VOTE COUNT
+        'votes': currentVotes + 1, 
         'last_updated': FieldValue.serverTimestamp(),
       });
       if (mounted) _showSuccessDialog("Report Merged!", "Similar report found nearby. We escalated priority (+1 Vote).", severity, dispLoc);
     } else {
-      // 🆕 NEW: Create fresh report
       await _addToFirestore(desc, severity, dept, dispLoc, 1);
       if (mounted) _showSuccessDialog("Hazard Reported", "New hazard reported successfully.", severity, dispLoc);
     }
@@ -162,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
       'severity': sev,
       'dept': dept,
       'location': loc,
-      'latitude': _currentPosition?.latitude, // Store GPS for future matching
+      'latitude': _currentPosition?.latitude,
       'longitude': _currentPosition?.longitude,
       'status': 'Pending',
       'votes': votes,
@@ -170,7 +165,6 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  // 🎨 POPUP DESIGN (Maintained your look)
   void _showSuccessDialog(String title, String subtitle, String severity, String loc) {
     showDialog(
       context: context,
@@ -232,8 +226,8 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             const CircleAvatar(radius: 30, backgroundColor: Color(0xFFF1F1F1), child: Icon(Icons.person, size: 35, color: Colors.grey)),
             const SizedBox(height: 10),
-            Text("User Profile", style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold)),
-            const Text("Student ID: 102203"),
+            Text("Citizen Profile", style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text("Citizen ID: IN-88203"),
             const Spacer(),
             SizedBox(
               width: double.infinity,
@@ -272,7 +266,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Container(width: 8, height: 8, decoration: const BoxDecoration(color: Colors.green, shape: BoxShape.circle)),
                           const SizedBox(width: 6),
-                          Text("Campus Monitor Active", style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey)),
+                          Text("City Monitor Active", style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey)),
                         ],
                       ),
                     ],

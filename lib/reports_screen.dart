@@ -10,8 +10,8 @@ import 'package:url_launcher/url_launcher.dart';
 class ReportsScreen extends StatelessWidget {
   const ReportsScreen({super.key});
 
-  //  GEMINI API KEY 
-  static const String apiKey = "AIzaSyAm9vkdIPz5XsXNKpZfQssnXf9-Hc88mkY"; 
+  // 🔑 PASTE YOUR REAL GEMINI API KEY HERE
+  static const String apiKey = "AIzaSyC5MzKGb-lQzwXQyRQ3EqhMZnFzAl2UPf4"; 
 
   void _upvoteReport(String docId) {
     FirebaseFirestore.instance.collection('reports').doc(docId).update({
@@ -67,7 +67,7 @@ class ReportsScreen extends StatelessWidget {
       }
 
       final Uint8List imageBytes = await photo.readAsBytes();
-      final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
+      final model = GenerativeModel(model: 'gemini-2.5-flash', apiKey: apiKey);
 
       final content = Content.multi([
         TextPart("You are a strict Municipal Inspector. The original complaint was: '$description'. Look at this new photo. Does it show that SPECIFIC issue being fixed? 1. If the photo is unrelated (e.g., a wall when the issue was a road), reply 'REJECTED'. 2. If it shows the repair is done and safe, reply 'VERIFIED'. 3. If unclear, reply 'REJECTED'."),
@@ -102,7 +102,7 @@ class ReportsScreen extends StatelessWidget {
     } catch (e) {
       if (context.mounted) {
         try { Navigator.of(context, rootNavigator: true).pop(); } catch (_) {}
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error verifying fix. Check connection.")));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Error verifying fix. Check connection.")));
       }
     }
   }

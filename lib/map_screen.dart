@@ -12,7 +12,7 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  // Default coordinates fallback 
+  // Default coordinates fallback (Indore)
   LatLng _currentPos = const LatLng(22.7196, 75.8577); 
   bool _loading = true;
 

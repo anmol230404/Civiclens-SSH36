@@ -11,7 +11,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passController = TextEditingController();
-  bool isLogin = true; // Toggle between Login and Signup
+  bool isLogin = true; 
 
   void _authenticate() async {
     String email = _emailController.text.trim();
@@ -34,32 +34,40 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF0F4F8),
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("CivicLens", style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.blue)),
-            SizedBox(height: 40),
+            const Icon(Icons.location_city, size: 60, color: Color(0xFF1A237E)),
+            const SizedBox(height: 10),
+            const Text("CivicLens", style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Color(0xFF1A237E))),
+            const Text("Citizen E-Governance Portal", style: TextStyle(fontSize: 14, color: Colors.grey)),
+            const SizedBox(height: 40),
             TextField(
               controller: _emailController,
-              decoration: InputDecoration(labelText: "Email", border: OutlineInputBorder()),
+              decoration: const InputDecoration(labelText: "Email Address", border: OutlineInputBorder(), filled: true, fillColor: Colors.white),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             TextField(
               controller: _passController,
-              decoration: InputDecoration(labelText: "Password", border: OutlineInputBorder()),
+              decoration: const InputDecoration(labelText: "Password", border: OutlineInputBorder(), filled: true, fillColor: Colors.white),
               obscureText: true,
             ),
-            SizedBox(height: 30),
+            const SizedBox(height: 30),
             ElevatedButton(
               onPressed: _authenticate,
-              style: ElevatedButton.styleFrom(minimumSize: Size(double.infinity, 50)),
-              child: Text(isLogin ? "Login" : "Sign Up"),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 50),
+                backgroundColor: const Color(0xFF1A237E),
+                foregroundColor: Colors.white,
+              ),
+              child: Text(isLogin ? "Access Portal" : "Register as Citizen"),
             ),
             TextButton(
               onPressed: () => setState(() => isLogin = !isLogin),
-              child: Text(isLogin ? "Create new account" : "I already have an account"),
+              child: Text(isLogin ? "Create new citizen account" : "I already have an account"),
             )
           ],
         ),
