@@ -10,10 +10,10 @@ import 'home_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
  
-  // PASTE YOUR NEW FIREBASE KEYS HERE:
+  // FIREBASE KEYS HERE:
   await Firebase.initializeApp(
     options: const FirebaseOptions(
-      apiKey: "AIzaSyD0QSjXyQRESuKkOgxnGyK7pIVLF1WWS0k",
+      apiKey: "API_KEY_IS_HIDDEN_FOR_SECURITY",
   authDomain: "civiclens-ssh36.firebaseapp.com",
   projectId: "civiclens-ssh36",
   storageBucket: "civiclens-ssh36.firebasestorage.app",

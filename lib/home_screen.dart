@@ -20,8 +20,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // 🔑 PASTE YOUR REAL GEMINI API KEY HERE
-  final String apiKey = "AIzaSyC5MzKGb-lQzwXQyRQ3EqhMZnFzAl2UPf4"; 
+  // GEMINI API KEY HERE
+  final String apiKey = "API_KEY_IS_HIDDEN_FOR_SECURITY"; 
 
   bool _isAnalyzing = false;
   Position? _currentPosition; 

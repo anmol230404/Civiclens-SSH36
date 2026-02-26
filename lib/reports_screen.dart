@@ -10,8 +10,8 @@ import 'package:url_launcher/url_launcher.dart';
 class ReportsScreen extends StatelessWidget {
   const ReportsScreen({super.key});
 
-  // 🔑 PASTE YOUR REAL GEMINI API KEY HERE
-  static const String apiKey = "AIzaSyC5MzKGb-lQzwXQyRQ3EqhMZnFzAl2UPf4"; 
+  // GEMINI API KEY HERE
+  static const String apiKey = "API_KEY_IS_HIDDEN_FOR_SECURITY"; 
 
   void _upvoteReport(String docId) {
     FirebaseFirestore.instance.collection('reports').doc(docId).update({
