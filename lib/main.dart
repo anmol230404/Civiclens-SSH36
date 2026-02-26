@@ -1,3 +1,4 @@
+import 'home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -51,7 +52,7 @@ class CivicLensApp extends StatelessWidget {
             // This is a temporary placeholder so the app doesn't crash after login
             if (snapshot.hasData) {
          // Once the citizen logs in, show them the map!
-         return const MapScreen(); 
+         return const HomeScreen(); 
        }
           }
           return const LoginScreen(); 
