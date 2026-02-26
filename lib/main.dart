@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'map_screen.dart';
 import 'auth_service.dart';
 import 'login_screen.dart';
 
@@ -18,7 +18,6 @@ void main() async {
   storageBucket: "civiclens-ssh36.firebasestorage.app",
   messagingSenderId: "1051389680609",
   appId: "1:1051389680609:web:6b3f1bb655e019590fd0a0",
-
     ),
   );
   
@@ -50,7 +49,10 @@ class CivicLensApp extends StatelessWidget {
           }
           if (snapshot.hasData) {
             // This is a temporary placeholder so the app doesn't crash after login
-            return const Scaffold(body: Center(child: Text("Welcome to the Citizen Portal. Map loading..."))); 
+            if (snapshot.hasData) {
+         // Once the citizen logs in, show them the map!
+         return const MapScreen(); 
+       }
           }
           return const LoginScreen(); 
         },
